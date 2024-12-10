@@ -1,0 +1,67 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract Calculator {
+    // Problem 1: Missing state variable for lastResult
+    uint256 private lastResult;
+
+    // Events to log calculations
+    event CalculationPerformed(
+        uint256 firstNumber,
+        uint256 secondNumber,
+        string operation,
+        uint256 lastResult
+    );
+
+    // Function to add two numbers
+    function add(uint256 a, uint256 b) public returns (uint256) {
+        lastResult = a + b;  // Update the state variable
+        emit CalculationPerformed(a, b, "+", lastResult);
+        return lastResult;
+    }
+
+    // Function to subtract two numbers
+    function subtract(uint256 a, uint256 b) public returns (uint256) {
+        require(a >= b, "Result cannot be negative");
+        lastResult = a - b;  // Update the state variable
+        emit CalculationPerformed(a, b, "-", lastResult);
+        return lastResult;
+    }
+
+    // Function to multiply two numbers
+    function multiply(uint256 a, uint256 b) public returns (uint256) {
+        lastResult = a * b;  // Update the state variable
+        emit CalculationPerformed(a, b, "*", lastResult);
+        return lastResult;
+    }
+
+    // Function to divide two numbers
+    function divide(uint256 a, uint256 b) public returns (uint256) {
+        require(b > 0, "Cannot divide by zero");
+        lastResult = a / b;  // Update the state variable
+        emit CalculationPerformed(a, b, "/", lastResult);
+        return lastResult;
+    }
+
+    // Fixed: Properly implemented getLastResult function
+    function getLastResult() public view returns (uint256) {
+        return lastResult;
+    }
+
+    // Function to perform calculation based on operator
+    function calculate(uint256 a, uint256 b, string memory operator) public returns (uint256) {
+        bytes32 operatorHash = keccak256(abi.encodePacked(operator));
+        
+        if (operatorHash == keccak256(abi.encodePacked("+"))) {
+            return add(a, b);
+        } else if (operatorHash == keccak256(abi.encodePacked("-"))) {
+            return subtract(a, b);
+        } else if (operatorHash == keccak256(abi.encodePacked("*"))) {
+            return multiply(a, b);
+        } else if (operatorHash == keccak256(abi.encodePacked("/"))) {
+            return divide(a, b);
+        }
+        
+        revert("Invalid operator");
+    }
+}
